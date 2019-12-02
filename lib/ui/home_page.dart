@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gifsearch/ui/gif_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:share/share.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -36,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         title: Image.network('https://developers.giphy.com/static/img/dev-logo-lg.7404c00322a8.gif'),
         centerTitle: true,
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.white,
         body: Column(
           children: <Widget>[
             Padding(padding: 
@@ -44,10 +45,10 @@ class _HomePageState extends State<HomePage> {
               child: TextField(
               decoration: InputDecoration(
                 labelText: 'Search here',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder()
               ),
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
+              style: TextStyle(color: Colors.black, fontSize: 18.0),
               textAlign: TextAlign.center,
               onSubmitted: (text){
                 setState(() {
@@ -102,11 +103,23 @@ Widget _createGifTable (BuildContext context, AsyncSnapshot snapshot){
       ),
       itemCount: _getCount(snapshot.data['data']),
       itemBuilder: (context, index) {
-        if (_search == null || index < snapshot.data['data'].length)
+        if ((_search == null || _search.isEmpty) || index < snapshot.data['data'].length)
           return GestureDetector(
-            child: Image.network(snapshot.data['data'][index]['images']['fixed_height']['url'],
+            child: FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image: snapshot.data['data'][index]['images']['fixed_height']['url'],
               height: 300.0,
-              fit: BoxFit.cover,),
+              fit: BoxFit.cover,
+            ),
+              
+            onTap: (){
+              Navigator.push(context, 
+                MaterialPageRoute(builder: (context) => GifPage(snapshot.data['data'][index]))
+              );
+            },
+            onLongPress: (){
+                Share.share(snapshot.data['data'][index]['images']['fixed_height']['url']);
+              },
         );
         else 
           return Container(
